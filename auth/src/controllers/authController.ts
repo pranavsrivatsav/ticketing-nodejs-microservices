@@ -1,7 +1,8 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import { validationResult } from "express-validator";
 import { RequestValidationError } from "../errors/RequestValidationError";
-import { DatabaseConnectionError } from "../errors/DatabaseConnectionError";
+import { registerUser, signInUser } from "../services/authServices";
+import createSignInTokenAndSetCookie from "../utils/createSignInTokenAndSetCookie";
 
 // Register a new user
 export const register = async (req: Request, res: Response) => {
@@ -11,19 +12,43 @@ export const register = async (req: Request, res: Response) => {
     throw new RequestValidationError(result.array());
   }
 
-  res
-    .status(201)
-    .send({ success: true, message: "User registered successfully" });
+  const newUser = await registerUser(req.body);
+
+  createSignInTokenAndSetCookie(newUser, req);
+
+  res.status(201).send({
+    user: newUser,
+    status: "Success",
+    message: "User registered successfully",
+  });
 };
 
 // Sign in existing user
 export const signin = async (req: Request, res: Response) => {
-  throw new DatabaseConnectionError();
+  const result = validationResult(req);
+
+  if (!result.isEmpty()) {
+    throw new RequestValidationError(result.array());
+  }
+
+  const user = await signInUser(req.body);
+
+  createSignInTokenAndSetCookie(user, req);
+
+  res.status(200).send({
+    user,
+    status: "Success",
+    message: "User signed in successfully",
+  });
+};
+
+//get the current user details - based on token info
+export const currentUser = async (req: Request, res: Response) => {
+  res.status(200).send(req.currentUser);
 };
 
 // Sign out current user
 export const signout = async (req: Request, res: Response) => {
-  res
-    .status(200)
-    .send({ success: true, message: "User signed out successfully" });
+  req.session = null;
+  res.status(200).send({ message: "User signed out successfully" });
 };

@@ -1,0 +1,12 @@
+{
+  "eslint.validate": ["javascript", "typescript"],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "eslint.alwaysShowStatus": true,
+  "eslint.run": "onType",
+  "eslint.formatOnSave": true,
+  "eslint.format.enable": true,
+  "files.eol": "\n",
+  "prettier.enable": false
+}

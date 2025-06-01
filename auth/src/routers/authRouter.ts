@@ -1,7 +1,7 @@
-import express, { Request, Response } from "express";
-import { register, signin, signout } from "../controllers/authController";
-import { body } from "express-validator";
+import express from "express";
+import { currentUser, register, signin, signout } from "../controllers/authController";
 import signUpValidator from "../middlewares/signUpValidator";
+import verifyTokenMiddleware from "../middlewares/verifyTokenMiddleware";
 
 const router = express.Router();
 
@@ -9,9 +9,12 @@ const router = express.Router();
 router.post("/register", signUpValidator, register);
 
 // Sign in route
-router.post("/signin", signin);
+router.post("/signin", signUpValidator, signin);
+
+// Current user route
+router.get("/current-user", verifyTokenMiddleware, currentUser);
 
 // Sign out route
-router.post("/signout", signout);
+router.post("/signout", verifyTokenMiddleware, signout);
 
 export { router as authRouter };

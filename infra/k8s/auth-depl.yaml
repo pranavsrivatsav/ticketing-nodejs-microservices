@@ -16,6 +16,12 @@ spec:
         - name: auth
           image: pranavsrivatsav/ticketing-auth
           imagePullPolicy: Never
+          env:
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_KEY
 
 ---
 # service configuration to target and expose auth pods
