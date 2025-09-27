@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 // Define the attributes required to create a new user
 export interface TicketAttrs {
+  id: string;
   title: string;
   price: number;
   userId: string;
@@ -52,7 +53,10 @@ function TicketTransform(Doc: TicketDocument, ret: any) {
 }
 
 TicketSchema.statics.buildTicket = function (attrs: TicketAttrs): TicketDocument {
-  return new Ticket(attrs);
+  const newTicket = new Ticket({ price: attrs.price, title: attrs.title, userId: attrs.userId });
+  newTicket._id = new mongoose.Types.ObjectId(attrs.id).toHexString();
+
+  return newTicket;
 };
 
 //Create the ticket model using the schema and the document model

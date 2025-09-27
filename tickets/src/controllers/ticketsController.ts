@@ -20,6 +20,7 @@ export const createTicketHandler = async (req: Request, res: Response) => {
     id: ticket.id,
     price: ticket.price,
     title: ticket.title,
+    userId: req.currentUser?.userId,
   });
 
   res.send(ticket);
@@ -54,6 +55,7 @@ export const updateTicketHandler = async (req: Request, res: Response) => {
     id: updatedTicket.id,
     title: updatedTicket.title,
     price: updatedTicket.price,
+    userId: req.currentUser?.userId,
   });
 
   res.send(updatedTicket);

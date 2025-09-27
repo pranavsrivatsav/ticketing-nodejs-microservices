@@ -17,6 +17,7 @@ const router = express.Router();
 
 router.post("/hello", async (req: Request, res: Response) => {
   const ticket = Ticket.buildTicket({
+    id: new mongoose.Types.ObjectId().toHexString(),
     price: 10,
     title: "title",
     userId: new mongoose.Types.ObjectId().toHexString(),

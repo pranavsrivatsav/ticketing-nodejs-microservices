@@ -6,5 +6,6 @@ export interface TicketCreatedEvent extends Event {
     id: string;
     price: number;
     title: string;
+    userId: string;
   };
 }
