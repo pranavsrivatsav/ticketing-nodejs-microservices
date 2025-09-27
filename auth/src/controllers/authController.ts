@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { validationResult } from "express-validator";
-import { RequestValidationError } from "../errors/RequestValidationError";
+import { RequestValidationError } from "@psctickets/common/errors";
 import { registerUser, signInUser } from "../services/authServices";
 import createSignInTokenAndSetCookie from "../utils/createSignInTokenAndSetCookie";
 
@@ -44,6 +44,7 @@ export const signin = async (req: Request, res: Response) => {
 
 //get the current user details - based on token info
 export const currentUser = async (req: Request, res: Response) => {
+  console.log("inside current user");
   res.status(200).send(req.currentUser);
 };
 

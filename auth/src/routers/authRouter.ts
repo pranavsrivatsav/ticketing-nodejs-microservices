@@ -1,7 +1,7 @@
 import express from "express";
 import { currentUser, register, signin, signout } from "../controllers/authController";
 import signUpValidator from "../middlewares/signUpValidator";
-import verifyTokenMiddleware from "../middlewares/verifyTokenMiddleware";
+import { verifyTokenMiddleware } from "@psctickets/common/middlewares";
 
 const router = express.Router();
 

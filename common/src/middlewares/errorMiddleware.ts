@@ -1,7 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import { CustomError } from "../errors/CustomError";
 
-const errorMiddleware = (err: Error, _req: Request, res: Response, _next: NextFunction) => {
+const errorMiddleware = (
+  err: Error,
+  _req: Request,
+  res: Response,
+  _next: NextFunction
+) => {
   if (err instanceof CustomError) {
     res.status(err.statusCode).send(err.serializeErrors());
     return;

@@ -20,6 +20,14 @@ interface UserModel extends mongoose.Model<UserDoc> {
   buildUser(attrs: userAttrs): UserDoc;
 }
 
+const userTransform = function (doc: UserDoc, ret: any) {
+  ret.id = doc._id;
+  delete ret._id;
+  delete ret.password;
+
+  return ret;
+};
+
 // Define the schema for the User model
 const userSchema = new mongoose.Schema(
   {
@@ -35,11 +43,7 @@ const userSchema = new mongoose.Schema(
   {
     toJSON: {
       versionKey: false,
-      transform: function (doc, ret) {
-        ret.id = doc._id;
-        delete ret._id;
-        delete ret.password;
-      },
+      transform: userTransform,
     },
   }
 );

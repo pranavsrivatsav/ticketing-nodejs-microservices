@@ -1,4 +1,4 @@
-import { BadRequestError } from "../errors/BadRequestError";
+import { BadRequestError } from "@psctickets/common/errors";
 import User, { UserDoc } from "../models/User";
 import RegisterUserRequest from "../types/RegisterUserRequest";
 import SignInUserRequest from "../types/SignInUserRequest";

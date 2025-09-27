@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: client
+  template:
+    metadata:
+      labels:
+        app: client
+    spec:
+      containers:
+        - name: client
+          image: pranavsrivatsav/ticketing-client
+          imagePullPolicy: Never
+
+---
+# service configuration to target and expose auth pods
+# we dont even mention anything about the deployment here
+apiVersion: v1
+kind: Service
+metadata:
+  name: client-svc
+spec:
+  selector:
+    app: client
+  ports:
+    - name: client # name of the port - can be used for identification, if a service is exposing other ports of a pod
+      protocol: TCP
+      port: 5000
+      targetPort: 5000

@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orders-mongodb-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orders-mongodb
+  template:
+    metadata:
+      labels:
+        app: orders-mongodb
+    spec:
+      containers:
+        - name: auth-orders-container
+          image: mongo
+
+---
+# service configuration to target and expose auth pods
+# we dont even mention anything about the deployment here
+apiVersion: v1
+kind: Service
+metadata:
+  name: orders-mongodb-svc
+spec:
+  selector:
+    app: orders-mongodb
+  ports:
+    - name: orders-mongodb-port # name of the port - can be used for identification, if a service is exposing other ports of a pod
+      protocol: TCP
+      port: 27017
+      targetPort: 27017
