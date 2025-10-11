@@ -12,7 +12,7 @@ import { Request, Response } from "express";
 import { findTaggedOrderForTicket, isValidMongoObjectId } from "../utils/HelperFunctions";
 import { natsWrapper } from "../events/NatsWrapper";
 import { OrderCreatedPublisher } from "../events/OrderCreatedPublisher";
-import { OrderUpdatedPublisher } from "../events/OrderUpdatedPublisher";
+import { OrderCancelledPublisher } from "../events/OrderCancelledPublisher";
 
 export async function createOrderHandler(req: Request, res: Response) {
   const payload: CreateOrderRequest = req.body;
@@ -65,7 +65,7 @@ export async function getOrderByIdHandler(req: Request, res: Response) {
 export async function cancelOrderHandler(req: Request, res: Response) {
   const order = await cancelOrderForUser(req.params.orderId, req.currentUser?.userId);
 
-  new OrderUpdatedPublisher(natsWrapper.client!).publish({
+  new OrderCancelledPublisher(natsWrapper.client!).publish({
     expiresAt: order.expiresAt,
     id: order.id,
     status: order.status,
