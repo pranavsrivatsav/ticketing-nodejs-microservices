@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { OrderStatus } from "../types/OrderStatus";
 import { TicketDocument } from "./Ticket";
+import { updateIfCurrentPlugin } from "mongoose-update-if-current";
 
 // Define the attributes required to create a new order
 export interface OrderAttrs {
@@ -16,6 +17,7 @@ export interface OrderDocument extends mongoose.Document {
   status: OrderStatus;
   expiresAt: Date;
   ticket: TicketDocument;
+  version: number;
 }
 
 // Define the custom model interface that extends mongoose.Model
@@ -46,11 +48,12 @@ const OrderSchema = new mongoose.Schema(
   },
   {
     toJSON: {
-      versionKey: false,
       transform: OrderTransform,
     },
   }
 );
+OrderSchema.plugin(updateIfCurrentPlugin);
+OrderSchema.set("versionKey", "version");
 
 function OrderTransform(Doc: OrderDocument, ret: any) {
   ret.id = Doc._id;

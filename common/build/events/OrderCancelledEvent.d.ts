@@ -3,9 +3,8 @@ export interface OrderCancelledEvent extends Event {
     subject: Subjects.OrderCancelled;
     data: {
         id: string;
+        version: number;
         userId: string;
-        status: string;
-        expiresAt: Date;
         ticketId: string;
     };
 }

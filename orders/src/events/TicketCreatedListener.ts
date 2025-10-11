@@ -6,15 +6,13 @@ import EventConstants from "../constants/EventConstants";
 export class TicketCreatedListener extends BaseListener<TicketCreatedEvent> {
   subject: Subjects.TicketCreated = Subjects.TicketCreated;
   queueGroupName: string = EventConstants.QueueName;
-  onMsgCallback = (
-    data: { id: string; price: number; title: string; userId: string },
-    msg: Message
-  ) => {
+  onMsgCallback = (data: TicketCreatedEvent["data"], msg: Message) => {
     const ticket = Ticket.buildTicket({
       id: data.id,
       price: data.price,
       title: data.title,
       userId: data.userId,
+      version: data.version,
     });
 
     ticket

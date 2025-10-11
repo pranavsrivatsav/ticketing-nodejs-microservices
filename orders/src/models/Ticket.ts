@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { updateIfCurrentPlugin } from "mongoose-update-if-current";
 
 // Define the attributes required to create a new user
 export interface TicketAttrs {
@@ -6,6 +7,7 @@ export interface TicketAttrs {
   title: string;
   price: number;
   userId: string;
+  version?: number;
 }
 
 // Interface holding the type of the document returned by the Ticket Model
@@ -13,6 +15,7 @@ export interface TicketDocument extends mongoose.Document {
   title: string;
   price: number;
   userId: string;
+  version: number;
 }
 
 // Define the custom model interface that extends mongoose.Model
@@ -20,6 +23,7 @@ export interface TicketDocument extends mongoose.Document {
 interface TicketModel extends mongoose.Model<TicketDocument> {
   //custom static method to create a new ticket
   buildTicket(attrs: TicketAttrs): TicketDocument;
+  findOneWithVersion(id: string, version: number): Promise<TicketDocument | null>;
 }
 
 const TicketSchema = new mongoose.Schema(
@@ -39,11 +43,12 @@ const TicketSchema = new mongoose.Schema(
   },
   {
     toJSON: {
-      versionKey: false,
       transform: TicketTransform,
     },
   }
 );
+TicketSchema.plugin(updateIfCurrentPlugin);
+TicketSchema.set("versionKey", "version");
 
 function TicketTransform(Doc: TicketDocument, ret: any) {
   ret.id = Doc._id;
@@ -57,6 +62,15 @@ TicketSchema.statics.buildTicket = function (attrs: TicketAttrs): TicketDocument
   newTicket._id = new mongoose.Types.ObjectId(attrs.id).toHexString();
 
   return newTicket;
+};
+
+TicketSchema.statics.findOneWithVersion = async function (id: string, version: number) {
+  const ticket = await Ticket.findOne({
+    _id: id,
+    version: version,
+  });
+
+  return ticket;
 };
 
 //Create the ticket model using the schema and the document model

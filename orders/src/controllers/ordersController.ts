@@ -46,6 +46,7 @@ export async function createOrderHandler(req: Request, res: Response) {
     status: order.status,
     ticketId: order.ticket.id,
     userId: order.userId,
+    version: order.version,
   });
 
   res.status(201).send(order);
@@ -66,11 +67,10 @@ export async function cancelOrderHandler(req: Request, res: Response) {
   const order = await cancelOrderForUser(req.params.orderId, req.currentUser?.userId);
 
   new OrderCancelledPublisher(natsWrapper.client!).publish({
-    expiresAt: order.expiresAt,
     id: order.id,
-    status: order.status,
     ticketId: order.ticket.id,
     userId: order.userId,
+    version: order.version,
   });
 
   res.status(200).send(order);
