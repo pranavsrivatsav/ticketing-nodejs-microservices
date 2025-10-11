@@ -5,7 +5,6 @@ import { OrderStatus } from "../types/OrderStatus";
 
 export async function createOrder(payload: CreateOrderPayload) {
   const order = Order.buildOrder({
-    price: payload.ticket.price,
     expiresAt: getExpiresAt(),
     status: OrderStatus.ACTIVE,
     ticket: payload.ticket,
@@ -21,7 +20,9 @@ export async function getAllOrdersForUser(userId: string) {
     userId: userId,
   });
 
-  return ordersForUser;
+  const populatedOrders = ordersForUser.map(async (order) => order.populate("ticket"));
+
+  return await Promise.all(populatedOrders);
 }
 
 export async function getOrderByIdForUser(orderId: string, userId: string) {
@@ -29,11 +30,11 @@ export async function getOrderByIdForUser(orderId: string, userId: string) {
     _id: orderId,
   });
 
-  if (!order) throw new NotFoundError();
+  if (!order) throw new NotFoundError("Order with provided id does not exist");
 
   if (order.userId !== userId) throw new UnauthorizedRequest("Unauthorized request");
 
-  return order;
+  return await order.populate("ticket");
 }
 
 export async function cancelOrderForUser(orderId: string, userId: string) {
@@ -41,6 +42,7 @@ export async function cancelOrderForUser(orderId: string, userId: string) {
 
   order.status = OrderStatus.CANCELLED;
   await order.save();
+  return order;
 }
 
 function getExpiresAt() {

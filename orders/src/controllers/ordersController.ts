@@ -10,6 +10,9 @@ import {
 } from "../services/OrdersService";
 import { Request, Response } from "express";
 import { findTaggedOrderForTicket, isValidMongoObjectId } from "../utils/HelperFunctions";
+import { natsWrapper } from "../events/NatsWrapper";
+import { OrderCreatedPublisher } from "../events/OrderCreatedPublisher";
+import { OrderUpdatedPublisher } from "../events/OrderUpdatedPublisher";
 
 export async function createOrderHandler(req: Request, res: Response) {
   const payload: CreateOrderRequest = req.body;
@@ -37,6 +40,14 @@ export async function createOrderHandler(req: Request, res: Response) {
     userId: req.currentUser?.userId,
   });
 
+  new OrderCreatedPublisher(natsWrapper.client!).publish({
+    expiresAt: order.expiresAt,
+    id: order.id,
+    status: order.status,
+    ticketId: order.ticket.id,
+    userId: order.userId,
+  });
+
   res.status(201).send(order);
 }
 
@@ -52,7 +63,15 @@ export async function getOrderByIdHandler(req: Request, res: Response) {
 }
 
 export async function cancelOrderHandler(req: Request, res: Response) {
-  await cancelOrderForUser(req.params.orderId, req.currentUser?.userId);
+  const order = await cancelOrderForUser(req.params.orderId, req.currentUser?.userId);
 
-  res.status(200);
+  new OrderUpdatedPublisher(natsWrapper.client!).publish({
+    expiresAt: order.expiresAt,
+    id: order.id,
+    status: order.status,
+    ticketId: order.ticket.id,
+    userId: order.userId,
+  });
+
+  res.status(200).send(order);
 }

@@ -5,7 +5,6 @@ import { TicketDocument } from "./Ticket";
 // Define the attributes required to create a new order
 export interface OrderAttrs {
   userId: string;
-  price: number;
   status: OrderStatus;
   expiresAt: Date;
   ticket: TicketDocument;
@@ -14,9 +13,9 @@ export interface OrderAttrs {
 // Interface holding the type of the document returned by the Order Model
 export interface OrderDocument extends mongoose.Document {
   userId: string;
-  price: number;
   status: OrderStatus;
   expiresAt: Date;
+  ticket: TicketDocument;
 }
 
 // Define the custom model interface that extends mongoose.Model
@@ -31,10 +30,6 @@ const OrderSchema = new mongoose.Schema(
   {
     userId: {
       type: String,
-      required: true,
-    },
-    price: {
-      type: Number,
       required: true,
     },
     status: {

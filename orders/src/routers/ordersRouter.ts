@@ -29,7 +29,6 @@ router.post("/hello", async (req: Request, res: Response) => {
 
   const order = Order.buildOrder({
     expiresAt: new Date(new Date().getTime() + expirationPeriodInMs),
-    price: ticket.price,
     status: OrderStatus.CANCELLED,
     ticket: ticket,
     userId: new mongoose.Types.ObjectId().toHexString(),

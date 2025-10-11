@@ -20,3 +20,5 @@ __exportStar(require("./Event"), exports);
 __exportStar(require("./Subjects"), exports);
 __exportStar(require("./TicketCreatedEvent"), exports);
 __exportStar(require("./TicketUpdatedEvent"), exports);
+__exportStar(require("./OrderCreatedEvent"), exports);
+__exportStar(require("./OrderUpdatedEvent"), exports);

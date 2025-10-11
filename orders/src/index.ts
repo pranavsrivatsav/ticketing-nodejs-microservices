@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { app } from "./app";
 import { natsWrapper } from "./events/NatsWrapper";
 import { TicketCreatedListener } from "./events/TicketCreatedListener";
+import { TicketUpdatedListener } from "./events/TicketUpdatedListener";
 
 const connectToMongoDb = async () => {
   try {
@@ -33,6 +34,7 @@ const initializeNatsConnection = () => {
 
   natsClient?.on("connect", () => {
     new TicketCreatedListener(natsClient!).listen();
+    new TicketUpdatedListener(natsClient!).listen();
   });
 
   natsClient?.on("close", () => {
