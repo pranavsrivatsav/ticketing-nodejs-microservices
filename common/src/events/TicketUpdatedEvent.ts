@@ -7,5 +7,6 @@ export interface TicketUpdatedEvent extends Event {
     price: number;
     title: string;
     userId: string;
+    version: number;
   };
 }

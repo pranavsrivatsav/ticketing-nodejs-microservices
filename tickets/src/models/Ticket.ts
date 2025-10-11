@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { updateIfCurrentPlugin } from "mongoose-update-if-current";
 
 // Define the attributes required to create a new user
 export interface TicketAttrs {
@@ -12,6 +13,7 @@ export interface TicketDocument extends mongoose.Document {
   title: string;
   price: number;
   userId: string;
+  version: number;
 }
 
 // Define the custom model interface that extends mongoose.Model
@@ -38,11 +40,12 @@ const TicketSchema = new mongoose.Schema(
   },
   {
     toJSON: {
-      versionKey: false,
       transform: TicketTransform,
     },
   }
 );
+TicketSchema.plugin(updateIfCurrentPlugin);
+TicketSchema.set("versionKey", "version");
 
 function TicketTransform(Doc: TicketDocument, ret: any) {
   ret.id = Doc._id;

@@ -1,6 +1,6 @@
 {
   "name": "@psctickets/common",
-  "version": "1.0.25",
+  "version": "1.0.26",
   "description": "common package for tickets learning project",
   "main": "./build/index.js",
   "files": [

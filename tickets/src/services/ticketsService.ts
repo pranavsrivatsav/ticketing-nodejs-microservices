@@ -33,7 +33,7 @@ export async function getAllTickets() {
 export async function updateTicket(req: Request) {
   const userId = req.currentUser?.userId;
   const ticketId = req.params.ticketId;
-  const { title, price } = req.body;
+  const { title, price, version } = req.body;
 
   //get ticket
   const ticket = await Ticket.findById(ticketId);
@@ -44,8 +44,9 @@ export async function updateTicket(req: Request) {
 
   ticket.title = title;
   ticket.price = price;
+  ticket.version = version;
 
-  await ticket.save();
+  await ticket.save(); // OCC will be handled - and if provided version is not in sync with the document in DB - then an error will be thrown
 
   return ticket;
 }
