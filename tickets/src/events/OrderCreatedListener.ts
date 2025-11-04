@@ -7,13 +7,7 @@ import EventConstants from "../constants/EventConstants";
 class OrderCreatedListener extends BaseListener<OrderCreatedEvent> {
   subject: Subjects.OrderCreated = Subjects.OrderCreated;
   queueGroupName = EventConstants.QueueName;
-  onMsgCallback: (data: OrderCreatedEvent["data"], msg: Message) => void = (data, msg) => {
-    this.OrderCreatedHandler(data).then(() => {
-      msg.ack();
-    });
-  };
-
-  private async OrderCreatedHandler(data: OrderCreatedEvent["data"]) {
+  onMsgCallback = async (data: OrderCreatedEvent["data"], msg: Message) => {
     const ticket = await Ticket.findById(data.ticketId);
 
     if (!ticket) throw new Error("Ticket with id not found");
@@ -23,6 +17,8 @@ class OrderCreatedListener extends BaseListener<OrderCreatedEvent> {
     ticket.orderId = data.id;
     await ticket?.save();
 
+    console.log("inside listener end ticket: ", ticket);
+
     await new TicketUpdatedPublisher(this.client).publish({
       id: ticket.id,
       price: ticket.price,
@@ -30,7 +26,9 @@ class OrderCreatedListener extends BaseListener<OrderCreatedEvent> {
       userId: ticket.userId,
       version: ticket.version,
     });
-  }
+
+    msg.ack();
+  };
 }
 
 export default OrderCreatedListener;

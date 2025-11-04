@@ -1,8 +1,7 @@
 import request from "supertest";
 import { app } from "../../app";
-import mongoose, { version } from "mongoose";
+import mongoose from "mongoose";
 import { natsWrapper } from "../../events/NatsWrapper";
-import { TicketAttrs } from "../../models/Ticket";
 
 describe("PUT /api/tickets/{ticketId}", () => {
   //throw 404 if the ticket does not exist

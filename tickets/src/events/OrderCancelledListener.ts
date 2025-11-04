@@ -7,13 +7,7 @@ import { TicketUpdatedPublisher } from "./TicketUpdatedPublisher";
 class OrderCancelledListener extends BaseListener<OrderCancelledEvent> {
   subject: Subjects.OrderCancelled = Subjects.OrderCancelled;
   queueGroupName = EventConstants.QueueName;
-  onMsgCallback: (data: OrderCancelledEvent["data"], msg: Message) => void = (data, msg) => {
-    this.OrderCancelledHandler(data).then(() => {
-      msg.ack();
-    });
-  };
-
-  private async OrderCancelledHandler(data: OrderCancelledEvent["data"]) {
+  onMsgCallback = async (data: OrderCancelledEvent["data"], msg: Message) => {
     const ticket = await Ticket.findById(data.ticketId);
 
     if (!ticket) throw new Error("Ticket with id not found");
@@ -32,7 +26,9 @@ class OrderCancelledListener extends BaseListener<OrderCancelledEvent> {
       userId: ticket.userId,
       version: ticket.version,
     });
-  }
+
+    msg.ack();
+  };
 }
 
 export default OrderCancelledListener;

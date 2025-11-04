@@ -10,7 +10,13 @@ export abstract class BaseListener<T extends Event> {
 
   abstract subject: T["subject"];
   abstract queueGroupName: string;
-  abstract onMsgCallback: (data: T["data"], msg: Message) => void;
+
+  // onMsgCallback can either by a synchronous or asynchronous function
+  abstract onMsgCallback: (
+    data: T["data"],
+    msg: Message
+  ) => Promise<void> | void;
+
   protected ackWait = 5 * 1000;
   protected subscriptionOptions: () => SubscriptionOptions = () =>
     this.client
@@ -34,13 +40,25 @@ export abstract class BaseListener<T extends Event> {
       this.subscriptionOptions()
     );
 
-    subscription.on("message", (msg: Message) => {
+    subscription.on("message", async (msg: Message) => {
       console.log(
         `Message received | Subject: ${msg.getSubject()} | QueueGroup: ${
           this.queueGroupName
         } | Sequence: ${msg.getSequence()} `
       );
-      this.onMsgCallback(this.parseMsg(msg), msg);
+      const result = this.onMsgCallback(this.parseMsg(msg), msg);
+
+      // Check if the callback returned a Promise and await it - so that we can handle the case of asynchronous onMsgCallback
+      if (result instanceof Promise) {
+        try {
+          await result;
+        } catch (error) {
+          console.error(
+            `Error while processing message (Subject: ${msg.getSubject()} | Sequence: ${msg.getSequence()}) :`,
+            error
+          );
+        }
+      }
     });
   };
 }
