@@ -1,7 +1,8 @@
 import request from "supertest";
 import { app } from "../../app";
-import mongoose from "mongoose";
+import mongoose, { version } from "mongoose";
 import { natsWrapper } from "../../events/NatsWrapper";
+import { TicketAttrs } from "../../models/Ticket";
 
 describe("PUT /api/tickets/{ticketId}", () => {
   //throw 404 if the ticket does not exist
@@ -34,6 +35,7 @@ describe("PUT /api/tickets/{ticketId}", () => {
       .send({
         title: "title",
         price: 10,
+        version: newTicket.version,
       })
       .expect(401);
 
@@ -61,6 +63,7 @@ describe("PUT /api/tickets/{ticketId}", () => {
       .send({
         title: "",
         price: 10,
+        version: newTicket.version,
       })
       .expect(400);
 
@@ -84,6 +87,7 @@ describe("PUT /api/tickets/{ticketId}", () => {
     const ticketPayload = {
       title: "abcd",
       price: 10,
+      version: newTicket.version,
     };
 
     const response = await request(app)
@@ -105,6 +109,7 @@ describe("PUT /api/tickets/{ticketId}", () => {
     const ticketPayload = {
       title: "abcd",
       price: 10,
+      version: newTicket.version,
     };
 
     const response = await request(app)

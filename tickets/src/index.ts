@@ -2,6 +2,8 @@ import "express-async-errors";
 import mongoose from "mongoose";
 import { app } from "./app";
 import { natsWrapper } from "./events/NatsWrapper";
+import OrderCreatedListener from "./events/OrderCreatedListener";
+import OrderCancelledListener from "./events/OrderCancelledListener";
 
 const connectToMongoDb = async () => {
   try {
@@ -21,14 +23,18 @@ const checkEnvVariables = () => {
   }
 };
 
-const initializeNatsConnection = () => {
-  natsWrapper.connect(
+const initializeNatsConnection = async () => {
+  await natsWrapper.connect(
     process.env.NATS_CLUSTER_ID!,
     process.env.NATS_CLIENT_ID!,
     process.env.NATS_URL!
   );
 
   const natsClient = natsWrapper.client;
+
+  new OrderCreatedListener(natsClient).listen();
+  new OrderCancelledListener(natsClient).listen();
+
   natsClient?.on("close", () => {
     console.log("nats connection closed");
     process.exit();
@@ -37,7 +43,7 @@ const initializeNatsConnection = () => {
 
 const initialize = async () => {
   checkEnvVariables();
-  initializeNatsConnection();
+  await initializeNatsConnection();
   await connectToMongoDb();
 };
 

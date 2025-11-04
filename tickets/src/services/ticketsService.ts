@@ -1,6 +1,6 @@
 import { Request } from "express";
 import Ticket from "../models/Ticket";
-import { NotFoundError, UnauthorizedRequest } from "@psctickets/common/errors";
+import { BadRequestError, NotFoundError, UnauthorizedRequest } from "@psctickets/common/errors";
 
 export async function createTicket(req: Request) {
   const newTicket = Ticket.buildTicket({
@@ -41,6 +41,8 @@ export async function updateTicket(req: Request) {
   if (!ticket) throw new NotFoundError();
 
   if (ticket.userId !== userId) throw new UnauthorizedRequest("Invalid Request");
+
+  if (ticket.orderId) throw new BadRequestError("Ticket is already locked under an order");
 
   ticket.title = title;
   ticket.price = price;

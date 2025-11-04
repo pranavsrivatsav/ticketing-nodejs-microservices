@@ -23,8 +23,8 @@ const checkEnvVariables = () => {
   }
 };
 
-const initializeNatsConnection = () => {
-  natsWrapper.connect(
+const initializeNatsConnection = async () => {
+  await natsWrapper.connect(
     process.env.NATS_CLUSTER_ID!,
     process.env.NATS_CLIENT_ID!,
     process.env.NATS_URL!
@@ -32,10 +32,8 @@ const initializeNatsConnection = () => {
 
   const natsClient = natsWrapper.client;
 
-  natsClient?.on("connect", () => {
-    new TicketCreatedListener(natsClient!).listen();
-    new TicketUpdatedListener(natsClient!).listen();
-  });
+  new TicketCreatedListener(natsClient!).listen();
+  new TicketUpdatedListener(natsClient!).listen();
 
   natsClient?.on("close", () => {
     console.log("nats connection closed");
@@ -45,7 +43,7 @@ const initializeNatsConnection = () => {
 
 const initialize = async () => {
   checkEnvVariables();
-  initializeNatsConnection();
+  await initializeNatsConnection();
   await connectToMongoDb();
 };
 

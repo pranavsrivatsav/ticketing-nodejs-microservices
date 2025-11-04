@@ -2,7 +2,7 @@ import { Stan, SubscriptionOptions, Message } from "node-nats-streaming";
 import { Event } from "./Event";
 
 export abstract class BaseListener<T extends Event> {
-  private client: Stan;
+  protected client: Stan;
 
   constructor(client: Stan) {
     this.client = client;
