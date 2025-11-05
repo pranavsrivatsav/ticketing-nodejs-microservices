@@ -121,4 +121,27 @@ describe("PUT /api/tickets/{ticketId}", () => {
     expect(response.body.price).toBe(ticketPayload.price);
     expect(natsWrapper.client?.publish).toHaveBeenCalled();
   });
+
+  it("should not allow update on a ticket which is assigned an orderId", async () => {
+    const ownerId = "abc";
+    const newTicket = await global.createTicket(ownerId);
+    const cookie = global.getLoginCookie(ownerId);
+
+    //assign orderId
+    newTicket.orderId = "orderId";
+    await newTicket.save();
+
+    const ticketPayload = {
+      title: "abcd",
+      price: 10,
+      version: newTicket.version,
+    };
+
+    const response = await request(app)
+      .put(`/api/tickets/${newTicket.id}`)
+      .set("Cookie", cookie)
+      .send(ticketPayload);
+
+    expect(response.statusCode).toBe(400);
+  });
 });

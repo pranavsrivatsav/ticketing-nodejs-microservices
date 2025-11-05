@@ -1,4 +1,4 @@
-import { OrderCancelledEvent, OrderCreatedEvent, Subjects } from "@psctickets/common/events";
+import { OrderCancelledEvent, Subjects } from "@psctickets/common/events";
 import Ticket from "../../models/Ticket";
 import { natsWrapper } from "../NatsWrapper";
 import { Message } from "node-nats-streaming";
