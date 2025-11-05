@@ -25,6 +25,9 @@ beforeEach(async () => {
   collections?.forEach((collection) => {
     collection.deleteMany({});
   });
+
+  // clear mock calls history
+  jest.clearAllMocks();
 });
 
 afterAll(async () => {

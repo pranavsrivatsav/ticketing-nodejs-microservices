@@ -1,3 +1,4 @@
+import { OrderDocument } from "../models/Order";
 import { TicketDocument } from "../models/Ticket";
 import { RegisterUserRequest } from "./RegisterUserRequest";
 
@@ -21,11 +22,11 @@ import { RegisterUserRequest } from "./RegisterUserRequest";
  * - Global variables that exist in the runtime environment
  * - Properties that will be added to the global scope
  */
+
+/* eslint-disable no-var */
 declare global {
-  // eslint-disable-next-line no-var
   var validUserData: RegisterUserRequest;
-  // eslint-disable-next-line no-var
   var getLoginCookie: (userId?: string) => string[];
-  // eslint-disable-next-line no-var
   var createTicket: (userId?: string) => Promise<TicketDocument>;
+  var createOrder: (userId?: string, ticket: TicketDocument) => Promise<OrderDocument>;
 }

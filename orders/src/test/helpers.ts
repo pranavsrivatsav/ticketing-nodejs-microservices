@@ -2,7 +2,10 @@ import { SignInTokenPayload } from "../types/SignInTokenPayload";
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import Ticket from "../models/Ticket";
+import Ticket, { TicketDocument } from "../models/Ticket";
+import Order from "../models/Order";
+import { getExpiresAt } from "../services/OrdersService";
+import { OrderStatus } from "../types/OrderStatus";
 
 function createTestHelpers() {
   global.validUserData = {
@@ -40,6 +43,7 @@ function createTestHelpers() {
     const randomString = () => crypto.randomBytes(4).toString("hex");
     const randomNumber = () => crypto.randomInt(1000);
     const newTicket = Ticket.buildTicket({
+      id: new mongoose.Types.ObjectId().toHexString(),
       title: randomString(),
       price: randomNumber(),
       userId: userId ?? randomString(),
@@ -48,6 +52,19 @@ function createTestHelpers() {
     await newTicket.save();
 
     return newTicket;
+  };
+
+  global.createOrder = async (userId?: string, ticket?: TicketDocument) => {
+    const newOrder = Order.buildOrder({
+      expiresAt: getExpiresAt(),
+      userId: userId || new mongoose.Types.ObjectId().toHexString(),
+      status: OrderStatus.ACTIVE,
+      ticket: ticket || (await global.createTicket()),
+    });
+
+    await newOrder.save();
+
+    return newOrder;
   };
 }
 

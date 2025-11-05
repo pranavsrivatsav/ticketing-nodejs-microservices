@@ -45,7 +45,7 @@ export async function cancelOrderForUser(orderId: string, userId: string) {
   return order;
 }
 
-function getExpiresAt() {
+export function getExpiresAt() {
   const expirationPeriod = 30 * 60 * 1000; // 30 mins in ms
   return new Date(new Date().getTime() + expirationPeriod);
 }
