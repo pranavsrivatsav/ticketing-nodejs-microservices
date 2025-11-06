@@ -1,8 +1,4 @@
-import express, { Request, Response } from "express";
-import Ticket from "../models/Ticket";
-import Order from "../models/Order";
-import { OrderStatus } from "../types/OrderStatus";
-import mongoose from "mongoose";
+import express from "express";
 import createOrderPayloadValidator from "../middlewares/createOrderPayloadValidator";
 import { verifyTokenMiddleware } from "@psctickets/common/middlewares";
 import {
@@ -14,27 +10,6 @@ import {
 import { validateOrderIdParam } from "../middlewares/validateOrderIdParam";
 
 const router = express.Router();
-
-router.post("/hello", async (req: Request, res: Response) => {
-  const ticket = Ticket.buildTicket({
-    id: new mongoose.Types.ObjectId().toHexString(),
-    price: 10,
-    title: "title",
-    userId: new mongoose.Types.ObjectId().toHexString(),
-  });
-
-  await ticket.save();
-
-  const expirationPeriodInMs = 30 * 60 * 1000;
-
-  const order = Order.buildOrder({
-    expiresAt: new Date(new Date().getTime() + expirationPeriodInMs),
-    status: OrderStatus.CANCELLED,
-    ticket: ticket,
-    userId: new mongoose.Types.ObjectId().toHexString(),
-  });
-  res.send(order);
-});
 
 router.post("/", verifyTokenMiddleware, createOrderPayloadValidator, createOrderHandler);
 
