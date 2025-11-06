@@ -1,43 +1,80 @@
+# Skaffold configuration for the ticketing microservices application
+# Skaffold automates the build, push, and deploy workflow for Kubernetes
 apiVersion: skaffold/v2alpha3
 kind: config
+
+# Deploy configuration: defines how to deploy to Kubernetes
 deploy:
   kubectl:
+    # Kubernetes manifest files to apply during deployment
+    # All YAML files in the infra/k8s directory will be deployed
     manifests:
       - ./infra/k8s/*
 
+# Build configuration: defines how to build Docker images
 build:
+  # Use local Docker daemon for building (no remote build server)
   local:
+    # Don't push images to a registry after building
+    # Images are only available locally in the Docker daemon
     push: false
+
+  # List of Docker images to build
   artifacts:
+    # Auth service: handles user authentication
     - image: pranavsrivatsav/ticketing-auth
-      context: auth
+      context: auth # Build context directory
       docker:
-        dockerfile: Dockerfile
+        dockerfile: Dockerfile # Dockerfile to use for building
+      # Sync configuration: enables fast development by copying files directly to running containers
+      # When TypeScript files change, they're synced to the container without rebuilding the image
       sync:
         manual:
+          # Sync all TypeScript source files from src directory
+          # Changes to these files are copied directly into the running container
           - src: "src/**/*.ts"
-            dest: .
+            dest: . # Destination path in container (WORKDIR from Dockerfile)
+
+    # Client service: Next.js frontend application
     - image: pranavsrivatsav/ticketing-client
       context: client
       docker:
         dockerfile: Dockerfile
       sync:
         manual:
+          # Sync JavaScript files (Next.js uses JS, not TS)
           - src: "src/**/*.js"
             dest: .
+
+    # Tickets service: manages ticket creation and updates
     - image: pranavsrivatsav/ticketing-tickets
       context: tickets
       docker:
         dockerfile: Dockerfile
       sync:
         manual:
+          # Sync TypeScript source files for faster development iteration
           - src: "src/**/*.ts"
             dest: .
+
+    # Orders service: handles order processing
     - image: pranavsrivatsav/ticketing-orders
       context: orders
       docker:
         dockerfile: Dockerfile
       sync:
         manual:
+          # Sync TypeScript source files directly to running container
+          - src: "src/**/*.ts"
+            dest: .
+
+    # Expiration service: handles order expiration logic
+    - image: pranavsrivatsav/ticketing-expiration
+      context: expiration
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          # Sync TypeScript source files for development hot-reload
           - src: "src/**/*.ts"
             dest: .
