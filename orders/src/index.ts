@@ -4,6 +4,7 @@ import { app } from "./app";
 import { natsWrapper } from "./events/NatsWrapper";
 import { TicketCreatedListener } from "./events/TicketCreatedListener";
 import { TicketUpdatedListener } from "./events/TicketUpdatedListener";
+import { ExpirationCompletedListener } from "./events/ExpirationCompletedListener";
 
 const connectToMongoDb = async () => {
   try {
@@ -34,6 +35,7 @@ const initializeNatsConnection = async () => {
 
   new TicketCreatedListener(natsClient!).listen();
   new TicketUpdatedListener(natsClient!).listen();
+  new ExpirationCompletedListener(natsClient!).listen();
 
   natsClient?.on("close", () => {
     console.log("nats connection closed");

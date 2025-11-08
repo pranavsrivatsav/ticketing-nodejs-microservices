@@ -1,6 +1,7 @@
 import { natsWrapper } from "./events/NatsWrapper";
+import OrderCreatedListener from "./events/OrderCreatedListener";
 
-const envVariableKeys = ["REDIS_URI", "NATS_CLIENT_ID", "NATS_CLUSTER_ID", "NATS_URL"];
+const envVariableKeys = ["REDIS_HOST", "NATS_CLIENT_ID", "NATS_CLUSTER_ID", "NATS_URL"];
 const checkEnvVariables = () => {
   for (const key of envVariableKeys) {
     if (!process.env[key]) {
@@ -17,6 +18,8 @@ const initializeNatsConnection = async () => {
   );
 
   const natsClient = natsWrapper.client;
+
+  new OrderCreatedListener(natsClient).listen();
 
   natsClient?.on("close", () => {
     console.log("nats connection closed");

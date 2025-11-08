@@ -17,8 +17,8 @@ spec:
           image: pranavsrivatsav/ticketing-expiration
           imagePullPolicy: Never
           env:
-            - name: REDIS_URI
-              value: "http://expiration-redis-svc:6379"
+            - name: REDIS_HOST
+              value: expiration-redis-svc
             - name: NATS_CLUSTER_ID
               value: "ticketing"
             - name: NATS_URL
