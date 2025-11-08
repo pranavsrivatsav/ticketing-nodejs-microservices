@@ -2,7 +2,6 @@ import { BaseListener, OrderCreatedEvent, Subjects } from "@psctickets/common/ev
 import { Message } from "node-nats-streaming";
 import EventConstants from "../constants/EventConstants";
 import { expirationQueue } from "../queues/expirationQueue";
-import { ExpirationCompletedPublisher } from "./ExpirationCompletedPublisher";
 
 class OrderCreatedListener extends BaseListener<OrderCreatedEvent> {
   subject: Subjects.OrderCreated = Subjects.OrderCreated;
