@@ -78,3 +78,14 @@ build:
           # Sync TypeScript source files for development hot-reload
           - src: "src/**/*.ts"
             dest: .
+
+    # payments service: handles payments
+    - image: pranavsrivatsav/ticketing-payments
+      context: payments
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          # Sync TypeScript source files for development hot-reload
+          - src: "src/**/*.ts"
+            dest: .

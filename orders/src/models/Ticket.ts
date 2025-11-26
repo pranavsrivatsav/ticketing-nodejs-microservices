@@ -59,7 +59,7 @@ function TicketTransform(Doc: TicketDocument, ret: any) {
 
 TicketSchema.statics.buildTicket = function (attrs: TicketAttrs): TicketDocument {
   const newTicket = new Ticket({ price: attrs.price, title: attrs.title, userId: attrs.userId });
-  newTicket._id = new mongoose.Types.ObjectId(attrs.id).toHexString();
+  newTicket._id = new mongoose.Types.ObjectId(attrs.id);
 
   return newTicket;
 };

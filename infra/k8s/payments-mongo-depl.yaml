@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payments-mongodb-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payments-mongodb
+  template:
+    metadata:
+      labels:
+        app: payments-mongodb
+    spec:
+      containers:
+        - name: auth-payments-container
+          image: mongo
+
+---
+# service configuration to target and expose auth pods
+# we dont even mention anything about the deployment here
+apiVersion: v1
+kind: Service
+metadata:
+  name: payments-mongodb-svc
+spec:
+  selector:
+    app: payments-mongodb
+  ports:
+    - name: payments-mongodb-port # name of the port - can be used for identification, if a service is exposing other ports of a pod
+      protocol: TCP
+      port: 27017
+      targetPort: 27017

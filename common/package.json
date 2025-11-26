@@ -1,6 +1,6 @@
 {
   "name": "@psctickets/common",
-  "version": "1.0.33",
+  "version": "1.0.36",
   "description": "common package for tickets learning project",
   "main": "./build/index.js",
   "files": [
@@ -27,6 +27,11 @@
       "import": "./build/events/index.js",
       "require": "./build/events/index.js",
       "types": "./build/events/index.d.ts"
+    },
+    "./orders": {
+      "import": "./build/orders/index.js",
+      "require": "./build/orders/index.js",
+      "types": "./build/orders/index.d.ts"
     },
     "./types/express": {
       "types": "./build/types/express/index.d.ts"

@@ -1,6 +1,3 @@
-export enum OrderStatus {
-  CANCELLED = "Cancelled",
-  EXPIRED = "expired",
-  ACTIVE = "active",
-  SUCCESS = "success",
-}
+import { OrderStatus } from "@psctickets/common/orders";
+
+export { OrderStatus };

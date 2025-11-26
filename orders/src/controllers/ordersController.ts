@@ -47,6 +47,7 @@ export async function createOrderHandler(req: Request, res: Response) {
     ticketId: order.ticket.id,
     userId: order.userId,
     version: order.version,
+    price: order.ticket.price,
   });
 
   res.status(201).send(order);
