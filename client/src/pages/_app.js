@@ -30,12 +30,12 @@ app.getInitialProps = async (context) => {
   }
 
   //call the child components initial props, and append it to the return object
-  let componentInitialProps = {}
+  let pageProps = {}
   if(context?.Component?.getInitialProps) {
-    componentInitialProps = context.Component.getInitialProps();
+    pageProps = await context.Component.getInitialProps(context);
   }
 
-  return { user, ...componentInitialProps };
+  return { user, pageProps };
 };
 
 export default app
