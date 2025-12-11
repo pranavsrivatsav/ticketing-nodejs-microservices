@@ -1,0 +1,12 @@
+name: tests
+
+# event on which this workflow should be executed
+on: 
+  pull_request
+
+jobs:
+  build:
+    runs-on: ubuntu-latest # operating system to use
+    steps:
+      - uses: actions/checkout@v2 # inbuilt action available to checkout the branch
+      - run: cd auth && npm install && npm run test:ci
