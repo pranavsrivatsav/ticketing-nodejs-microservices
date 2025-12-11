@@ -1,0 +1,13 @@
+name: tickets-tests
+
+# event on which this workflow should be executed
+# A pull_request event will basically be invoked when a new PR is created, updated, or reopened
+on: 
+  pull_request
+
+jobs:
+  build:
+	runs-on: ubuntu-latest # operating system to use
+	steps:
+	  - uses: actions/checkout@v2 # inbuilt action available to checkout the branch
+	  - run: cd tickets && npm install && npm run test:ci # we can perform jest watch in here, so we create a separate command test:ci to just run jest
