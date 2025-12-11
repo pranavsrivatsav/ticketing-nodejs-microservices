@@ -1,4 +1,4 @@
-name: tests
+name: auth-tests
 
 # event on which this workflow should be executed
 on: 
