@@ -1,8 +1,10 @@
 name: auth-tests
 
 # event on which this workflow should be executed
-on: 
-  pull_request
+on:
+  pull_request:
+    paths: # Trigger workflow only if changes are present in auth folder
+      - "auth/**"
 
 jobs:
   build:
