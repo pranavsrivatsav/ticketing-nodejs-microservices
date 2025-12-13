@@ -2,8 +2,10 @@ name: payments-tests
 
 # event on which this workflow should be executed
 # A pull_request event will basically be invoked when a new PR is created, updated, or reopened
-on: 
-  pull_request
+on:
+  pull_request:
+    paths: # Trigger workflow only if changes are present in payments folder
+      - "payments/**"
 
 jobs:
   build:
