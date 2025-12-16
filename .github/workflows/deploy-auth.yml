@@ -1,4 +1,4 @@
-name: deploy-manifests
+name: deploy-auth
 
 # event on which this workflow should be executed
 on:
