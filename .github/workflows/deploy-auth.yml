@@ -3,6 +3,7 @@ name: deploy-auth
 # event on which this workflow should be executed
 on:
   push:
+    branches: master
     paths: # Trigger workflow only if changes are present in auth folder
       - "auth/**"
 
