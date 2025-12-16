@@ -21,7 +21,7 @@ jobs:
       - run: docker push pranavsrivatsav/ticketing-auth # push image to docker hub
       - uses: digitalocean/action-doctl@v2
         with:
-          token: ${{DIGITALOCEAN_ACCESS_TOKEN}}
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
       - run: doctl kubernetes cluster kubeconfig save ddb24b32-3c81-4682-a8e0-962929208cff
       - run: kubectl rollout restart deployment auth-depl
       
