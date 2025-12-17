@@ -3,7 +3,8 @@ name: deploy-auth
 # event on which this workflow should be executed
 on:
   push:
-    branches: master
+    branches:
+      - master
     paths: # Trigger workflow only if changes are present in auth folder
       - "auth/**"
 
@@ -19,4 +20,3 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       - run: docker push pranavsrivatsav/ticketing-auth
-      

@@ -9,7 +9,8 @@ deploy:
     # Kubernetes manifest files to apply during deployment
     # All YAML files in the infra/k8s directory will be deployed
     manifests:
-      - ./infra/k8s/*
+      - ./infra/k8s
+      - ./infra/k8s/dev
 
 # Build configuration: defines how to build Docker images
 build:
