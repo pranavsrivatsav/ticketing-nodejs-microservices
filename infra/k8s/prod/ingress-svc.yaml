@@ -7,7 +7,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: ticketing.dev
+    - host: OUR-BOUGHT-DOMAIN
       http:
         paths:
           - path: /api/users/?(.*)
