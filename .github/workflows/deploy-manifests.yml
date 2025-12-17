@@ -1,0 +1,24 @@
+name: deploy-manifests
+
+# event on which this workflow should be executed
+on:
+  push:
+    branches:
+      - master
+    paths: # Trigger workflow only if changes are present in auth folder
+      - "infra/k8s/**"
+
+jobs:
+  build:
+    environment: PROD
+    runs-on: ubuntu-latest # operating system to use
+    steps:
+      - uses: actions/checkout@v2 # inbuilt action available to checkout the branch
+      # docker login and access not required, because our images are public images
+      # if our images are in a private registry in dockerhub then we will have to configure
+      # something called imagePullSecrets
+      - uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      - run: doctl kubernetes cluster kubeconfig save ddb24b32-3c81-4682-a8e0-962929208cff
+      - run: kubectl apply -f infra/k8s && kubectl apply -f infra/k8s/prod
