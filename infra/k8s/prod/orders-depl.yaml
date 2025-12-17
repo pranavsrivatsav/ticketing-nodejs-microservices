@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orders-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orders
+  template:
+    metadata:
+      labels:
+        app: orders
+    spec:
+      containers:
+        - name: orders
+          image: pranavsrivatsav/ticketing-orders
+          imagePullPolicy: Always
+          env:
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_KEY
+            - name: MONGO_URI
+              value: "mongodb://orders-mongodb-svc:27017/orders"
+            - name: NATS_CLUSTER_ID
+              value: "ticketing"
+            - name: NATS_URL
+              value: "http://nats-streaming-svc:4222"
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name #copies the pod name
+                  # - which is a more meaningful unique client id than just a random string
+
+---
+# service configuration to target and expose auth pods
+# we dont even mention anything about the deployment here
+apiVersion: v1
+kind: Service
+metadata:
+  name: orders-svc
+spec:
+  selector:
+    app: orders
+  ports:
+    - name: orders # name of the port - can be used for identification, if a service is exposing other ports of a pod
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

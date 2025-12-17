@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tickets-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tickets
+  template:
+    metadata:
+      labels:
+        app: tickets
+    spec:
+      containers:
+        - name: tickets
+          image: pranavsrivatsav/ticketing-tickets
+          imagePullPolicy: Always
+          env:
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_KEY
+            - name: MONGO_URI
+              value: "mongodb://tickets-mongodb-svc:27017/tickets"
+            - name: NATS_CLUSTER_ID
+              value: "ticketing"
+            - name: NATS_URL
+              value: "http://nats-streaming-svc:4222"
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name #copies the pod name
+                  # - which is a more meaningful unique client id than just a random string
+
+---
+# service configuration to target and expose auth pods
+# we dont even mention anything about the deployment here
+apiVersion: v1
+kind: Service
+metadata:
+  name: tickets-svc
+spec:
+  selector:
+    app: tickets
+  ports:
+    - name: tickets # name of the port - can be used for identification, if a service is exposing other ports of a pod
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

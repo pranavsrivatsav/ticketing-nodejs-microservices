@@ -1,4 +1,4 @@
-name: deploy-auth
+name: deploy-manifests
 
 # event on which this workflow should be executed
 on:
@@ -6,7 +6,7 @@ on:
     branches:
       - master
     paths: # Trigger workflow only if changes are present in auth folder
-      - "auth/**"
+      - "infra/k8s/**"
 
 jobs:
   build:
@@ -14,14 +14,11 @@ jobs:
     runs-on: ubuntu-latest # operating system to use
     steps:
       - uses: actions/checkout@v2 # inbuilt action available to checkout the branch
-      - run: cd auth && docker build -t pranavsrivatsav/ticketing-auth . # build the image
-      - run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-        env: #l oad our secrets as environment variables to be accessed by our scripts above
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      - run: docker push pranavsrivatsav/ticketing-auth # push image to docker hub
+      # docker login and access not required, because our images are public images
+      # if our images are in a private registry in dockerhub then we will have to configure
+      # something called imagePullSecrets
       - uses: digitalocean/action-doctl@v2
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
       - run: doctl kubernetes cluster kubeconfig save ddb24b32-3c81-4682-a8e0-962929208cff
-      - run: kubectl rollout restart deployment auth-depl
+      - run: kubectl apply -f infra/k8s && kubectl apply -f infra/k8s/prod
