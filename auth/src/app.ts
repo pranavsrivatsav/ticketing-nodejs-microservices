@@ -18,7 +18,7 @@ app.use(json());
 app.use(
   cookieSession({
     signed: false, // do not encrypt the contents
-    secure: process.env.NODE_ENV !== "test", // only require HTTPS in non-test environments
+    secure: false, // we will re-enable it to true once we have https certification for our domain
   })
 );
 

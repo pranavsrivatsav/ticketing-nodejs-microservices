@@ -15,7 +15,7 @@ spec:
       containers:
         - name: expiration
           image: pranavsrivatsav/ticketing-expiration
-          imagePullPolicy: Never
+          imagePullPolicy: IfNotPresent
           env:
             - name: REDIS_HOST
               value: expiration-redis-svc
