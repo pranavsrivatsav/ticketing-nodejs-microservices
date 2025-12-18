@@ -15,7 +15,14 @@ spec:
       containers:
         - name: client
           image: pranavsrivatsav/ticketing-client
-          imagePullPolicy: Never
+          imagePullPolicy: IfNotPresent
+          # Add environment variable from ticketing-config yaml
+          env:
+            - name: BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: ticketing-config
+                  key: BASE_URL
 
 ---
 # service configuration to target and expose auth pods

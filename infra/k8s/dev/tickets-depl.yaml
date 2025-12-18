@@ -15,7 +15,7 @@ spec:
       containers:
         - name: tickets
           image: pranavsrivatsav/ticketing-tickets
-          imagePullPolicy: Never
+          imagePullPolicy: IfNotPresent
           env:
             - name: JWT_KEY
               valueFrom:

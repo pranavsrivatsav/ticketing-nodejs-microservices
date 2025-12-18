@@ -15,7 +15,7 @@ spec:
       containers:
         - name: orders
           image: pranavsrivatsav/ticketing-orders
-          imagePullPolicy: Never
+          imagePullPolicy: IfNotPresent
           env:
             - name: JWT_KEY
               valueFrom:
