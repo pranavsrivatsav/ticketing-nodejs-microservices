@@ -1,29 +1,39 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: orders-depl
+  name: payments-depl
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: orders
+      app: payments
   template:
     metadata:
       labels:
-        app: orders
+        app: payments
     spec:
       containers:
-        - name: orders
-          image: pranavsrivatsav/ticketing-orders
-          imagePullPolicy: Never
+        - name: payments
+          image: pranavsrivatsav/ticketing-payments
+          imagePullPolicy: Always
           env:
             - name: JWT_KEY
               valueFrom:
                 secretKeyRef:
                   name: jwt-secret
                   key: JWT_KEY
+            - name: RZP_PUBLIC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: rzp-public-key
+                  key: RZP_PUBLIC_KEY
+            - name: RZP_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: rzp-private-key
+                  key: RZP_PRIVATE_KEY
             - name: MONGO_URI
-              value: "mongodb://orders-mongodb-svc:27017/orders"
+              value: "mongodb://payments-mongodb-svc:27017/orders"
             - name: NATS_CLUSTER_ID
               value: "ticketing"
             - name: NATS_URL
@@ -40,12 +50,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: orders-svc
+  name: payments-svc
 spec:
   selector:
-    app: orders
+    app: payments
   ports:
-    - name: orders # name of the port - can be used for identification, if a service is exposing other ports of a pod
+    - name: payments # name of the port - can be used for identification, if a service is exposing other ports of a pod
       protocol: TCP
       port: 3000
       targetPort: 3000

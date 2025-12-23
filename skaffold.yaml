@@ -7,9 +7,10 @@ kind: config
 deploy:
   kubectl:
     # Kubernetes manifest files to apply during deployment
-    # All YAML files in the infra/k8s directory will be deployed
+    # Shared infrastructure and dev-specific manifests
     manifests:
-      - ./infra/k8s/*
+      - infra/k8s/*.yaml
+      - infra/k8s/dev/*.yaml
 
 # Build configuration: defines how to build Docker images
 build:

@@ -16,6 +16,7 @@ const checkEnvVariables = () => {
 };
 
 const initialize = async () => {
+  console.log("initializing auth service....");
   checkEnvVariables();
   await connectToMongoDb();
 };
