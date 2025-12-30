@@ -7,40 +7,68 @@ function ticketDetails() {
   const ticketId = router.query.ticketId;
   console.log("ticketId" ,ticketId)
   const [ticket, setTicket] = useState(null);
+  const [purchasing, setPurchasing] = useState(false);
   
   useEffect(() => {
     const fetchTicket = async () => {
-      console.log("fetching ticket details")
-      const response = await api.get(`/api/tickets/${ticketId}`);
-      console.log("response", response)
-      setTicket(response.data);
+      try {
+        console.log("fetching ticket details")
+        const response = await api.get(`/api/tickets/${ticketId}`);
+        console.log("response", response)
+        setTicket(response.data);
+      } catch (error) {
+        console.error("Error fetching ticket:", error);
+      }
     }
-    fetchTicket();
+    if (ticketId) {
+      fetchTicket();
+    }
   }, [ticketId]);
 
   const onBuyHandler = useCallback(async ()=>{
-    //create new order
-    const response = await api.post("/api/orders", {
-      ticketId
-    })
+    try {
+      setPurchasing(true);
+      //create new order
+      const response = await api.post("/api/orders", {
+        ticketId
+      })
 
-    
-    const orderId = response.data.id
-    sessionStorage.setItem(`order${orderId}`, response.data);
+      
+      const orderId = response.data.id
+      sessionStorage.setItem(`order${orderId}`, JSON.stringify(response.data));
 
-    //push to checkout with orderId
-    router.push("/checkout/[orderId]", `/checkout/${orderId}`)
-  })
+      //push to checkout with orderId
+      router.push("/checkout/[orderId]", `/checkout/${orderId}`)
+    } catch (error) {
+      let errorMessage = "Failed to create order. Please try again.";
+      console.log("Error creating order:", errorMessage);
+      alert(errorMessage);
+    } finally {
+      setPurchasing(false);
+    }
+  }, [ticketId, router])
 
   if (!ticket) {
-    return <div>Loading...</div>
+    return <div className="container mt-5">Loading...</div>
   }
+  
   return (
     <div className="container mt-5">
-      <h1>Ticket Details</h1>
-      <p>Title: {ticket.title}</p>
-      <p>Price: {ticket.price}</p>
-      <button onClick={onBuyHandler}>Buy Ticket</button>
+      <div className="card">
+        <div className="card-body">
+          <h1 className="card-title mb-4">{ticket.title}</h1>
+          <p className="card-text mb-4">
+            <strong>Price:</strong> ${ticket.price}
+          </p>
+          <button 
+            onClick={onBuyHandler}
+            disabled={purchasing}
+            className="btn btn-primary"
+          >
+            {purchasing ? 'Processing...' : 'Buy Ticket'}
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

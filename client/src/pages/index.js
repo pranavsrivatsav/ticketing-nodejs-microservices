@@ -6,21 +6,33 @@ function index({ user, tickets }) {
   console.log("index", tickets);
   return (
     <div className="container mt-5">
-      <table>
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Price</th>
-            <th>Link</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tickets?.length > 0 &&
-            tickets?.map((ticket) => {
+      <h1 className="mb-4">Available Tickets</h1>
+      {!tickets || tickets.length === 0 ? (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: "60vh",
+          }}
+        >
+          <p>No tickets available</p>
+        </div>
+      ) : (
+        <table className="table table-striped">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Price</th>
+              <th>Link</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tickets.map((ticket) => {
               return (
-                <tr id={ticket.id}>
+                <tr key={ticket.id}>
                   <td>{ticket.title}</td>
-                  <td>{ticket.price}</td>
+                  <td>${ticket.price}</td>
                   <td>
                     <Link
                       href="tickets/[ticketId]"
@@ -30,8 +42,9 @@ function index({ user, tickets }) {
                 </tr>
               );
             })}
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }

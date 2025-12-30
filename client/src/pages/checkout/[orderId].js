@@ -14,7 +14,7 @@ function checkout() {
 
     const options = {
       key: "rzp_test_RicJRphzXyJOPL", // Enter the Key ID generated from the Dashboard
-      amount: orderDetails.price*100, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+      amount: (orderDetails?.ticket?.price || orderDetails?.price || 0) * 100, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
       currency: "INR",
       name: "Acme Corp",
       description: "Test Transaction",
@@ -48,8 +48,12 @@ function checkout() {
       // get and set order details
       let orderDetails = sessionStorage.getItem(`order${orderId}`);
 
-      if (!orderDetails) {
-        orderDetails = await api.get(`/api/orders/${orderId}`);
+      if (orderDetails) {
+        // Parse if it's a string from sessionStorage
+        orderDetails = JSON.parse(orderDetails);
+      } else {
+        const response = await api.get(`/api/orders/${orderId}`);
+        orderDetails = response.data;
       }
 
       setOrderDetails(orderDetails);
@@ -103,11 +107,98 @@ function checkout() {
     e.preventDefault();
   }, [rzpInstance])
 
-  return (<div>
-    <h1>checkout</h1>
+  if (!orderDetails) {
+    return (
+      <div className="container mt-5">
+        <div className="text-center">
+          <div className="spinner-border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="mt-3">Loading order details...</p>
+        </div>
+      </div>
+    );
+  }
 
-    <button className="btn btn-primary" onClick={onPaymentClickHandler}>Pay now</button>
-    </div>);
+  const orderPrice = orderDetails?.ticket?.price || orderDetails?.price || 0;
+  const expiresAt = orderDetails.expiresAt
+    ? new Date(orderDetails.expiresAt).toLocaleString()
+    : "N/A";
+
+  return (
+    <div className="container mt-5">
+      <div className="row justify-content-center">
+        <div className="col-md-8 col-lg-6">
+          <div className="card shadow-sm">
+            <div className="card-header bg-primary text-white">
+              <h2 className="card-title mb-0">Order Checkout</h2>
+            </div>
+            <div className="card-body">
+              <div className="mb-4">
+                <h4 className="text-muted mb-3">Order Details</h4>
+                <div className="table-responsive">
+                  <table className="table table-borderless">
+                    <tbody>
+                      <tr>
+                        <td className="fw-bold" style={{ width: "40%" }}>
+                          Order ID:
+                        </td>
+                        <td>{orderDetails.id || orderDetails._id}</td>
+                      </tr>
+                      <tr>
+                        <td className="fw-bold">Ticket Title:</td>
+                        <td>{orderDetails.ticket?.title || "N/A"}</td>
+                      </tr>
+                      <tr>
+                        <td className="fw-bold">Price:</td>
+                        <td className="fs-5 text-success fw-bold">
+                          ${orderPrice.toFixed(2)}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="fw-bold">Status:</td>
+                        <td>
+                          <span
+                            className={`badge ${
+                              orderDetails.status === "SUCCESS"
+                                ? "bg-success"
+                                : orderDetails.status === "CANCELLED"
+                                ? "bg-danger"
+                                : orderDetails.status === "ACTIVE"
+                                ? "bg-primary"
+                                : "bg-secondary"
+                            }`}
+                          >
+                            {orderDetails.status}
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="fw-bold">Expires At:</td>
+                        <td>{expiresAt}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div className="d-grid gap-2 mt-4">
+                <button
+                  className="btn btn-primary btn-lg"
+                  onClick={onPaymentClickHandler}
+                  disabled={!rzpInstance || !scriptLoaded}
+                >
+                  {scriptLoaded
+                    ? `Pay $${orderPrice.toFixed(2)}`
+                    : "Loading payment gateway..."}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default checkout;
