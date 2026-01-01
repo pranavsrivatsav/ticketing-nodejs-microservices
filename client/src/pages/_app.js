@@ -5,10 +5,19 @@ import "bootstrap/dist/css/bootstrap.css";
 const app = (props) => {
   const { Component, pageProps, user } = props;
   return (
-    <>
-      <Header {...pageProps} user={user}/>
-      <Component {...pageProps} user={user}/>
-    </>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000 }}>
+        <Header {...pageProps} user={user}/>
+      </div>
+      <div style={{ 
+        marginTop: '56px', // Approximate navbar height, adjust if needed
+        flex: 1,
+        overflowY: 'auto',
+        overflowX: 'hidden'
+      }}>
+        <Component {...pageProps} user={user}/>
+      </div>
+    </div>
   );
 };
 
@@ -30,12 +39,12 @@ app.getInitialProps = async (context) => {
   }
 
   //call the child components initial props, and append it to the return object
-  let componentInitialProps = {}
+  let pageProps = {}
   if(context?.Component?.getInitialProps) {
-    componentInitialProps = context.Component.getInitialProps();
+    pageProps = await context.Component.getInitialProps(context);
   }
 
-  return { user, ...componentInitialProps };
+  return { user, pageProps };
 };
 
 export default app

@@ -22,6 +22,11 @@ spec:
                 secretKeyRef:
                   name: jwt-secret
                   key: JWT_KEY
+            - name: INTERNAL_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: internal-api-key
+                  key: INTERNAL_API_KEY
 
 ---
 # service configuration to target and expose auth pods

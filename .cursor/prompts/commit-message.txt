@@ -1,0 +1,16 @@
+Generate a brief commit message with up to the point body
+
+Follow these steps:
+1. Run `git status` to see changed files
+2. Run `git diff --cached` for staged changes
+3. Run `git diff` for unstaged changes
+4. Analyze the changes and identify:
+   - Features added/modified
+   - Services affected
+   - New files created
+   - Dependencies updated
+5. Generate commit message in conventional commits format:
+   - Subject: `type(scope): brief description`
+   - Body: Bullet points for each change
+6. Provide the git commit command using the `git cm` alias
+

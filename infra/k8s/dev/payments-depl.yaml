@@ -32,6 +32,11 @@ spec:
                 secretKeyRef:
                   name: rzp-private-key
                   key: RZP_PRIVATE_KEY
+            - name: INTERNAL_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: internal-api-key
+                  key: INTERNAL_API_KEY
             - name: MONGO_URI
               value: "mongodb://payments-mongodb-svc:27017/orders"
             - name: NATS_CLUSTER_ID

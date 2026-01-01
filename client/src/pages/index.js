@@ -1,38 +1,86 @@
 import api from "@/services/axiosInterceptors";
-import axios from "axios";
+import Link from "next/link";
 import React from "react";
 
-function index({ user }) {
+const getTicketStatus = (ticket) => {
+  if (ticket.orderId) {
+    if (ticket.purchased) {
+      return "Purchased";
+    }
+    return "Reserved";
+  }
+  return "Available";
+};
+
+const renderEmptyState = () => {
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "60vh",
+      }}
+    >
+      <p>No tickets available</p>
+    </div>
+  );
+};
+
+const renderTicketRow = (ticket) => {
+  return (
+    <tr key={ticket.id}>
+      <td>{ticket.title}</td>
+      <td>${ticket.price}</td>
+      <td>{getTicketStatus(ticket)}</td>
+      <td>
+        <Link href="tickets/[ticketId]" as={`tickets/${ticket.id}`}>
+          Link
+        </Link>
+      </td>
+    </tr>
+  );
+};
+
+const renderTicketsTable = (tickets) => {
+  return (
+    <table className="table table-striped">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Price</th>
+          <th>Status</th>
+          <th>Link</th>
+        </tr>
+      </thead>
+      <tbody>{tickets.map(renderTicketRow)}</tbody>
+    </table>
+  );
+};
+
+function index({ user, tickets }) {
+  console.log("index", tickets);
   return (
     <div className="container mt-5">
-      <div className="row justify-content-center">
-        <div className="col-md-6 col-lg-4">
-          <div className="card shadow">
-            <div className="card-body text-center">
-              <h2 className="card-title mb-4">Welcome</h2>
-              {user ? (
-                <div>
-                  <div className="alert alert-success" role="alert">
-                    <i className="bi bi-check-circle-fill me-2"></i>
-                    You are signed in
-                  </div>
-                  <p className="text-muted">Welcome back!</p>
-                </div>
-              ) : (
-                <div>
-                  <div className="alert alert-warning" role="alert">
-                    <i className="bi bi-exclamation-triangle-fill me-2"></i>
-                    You are not signed in
-                  </div>
-                  <p className="text-muted">Please sign in to continue</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+      <h1 className="mb-4">Available Tickets</h1>
+      {!tickets || tickets.length === 0
+        ? renderEmptyState()
+        : renderTicketsTable(tickets)}
     </div>
   );
 }
+
+index.getInitialProps = async (context) => {
+  console.log("index.getInitialProps");
+  const request = context?.ctx?.req;
+  try {
+    const { data } = await api.get("/api/tickets", {
+      headers: request?.headers,
+    });
+    return { tickets: data.tickets };
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 export default index;
