@@ -38,7 +38,18 @@ function orders({ user, orders }) {
               return (
                 <tr key={order.id || order._id}>
                   <td>{order.id || order._id}</td>
-                  <td>{order.ticket?.title || "N/A"}</td>
+                  <td>
+                    {order.ticket?.id || order.ticket?._id ? (
+                      <Link
+                        href="/tickets/[ticketId]"
+                        as={`/tickets/${order.ticket.id || order.ticket._id}`}
+                      >
+                        {order.ticket?.title || "N/A"}
+                      </Link>
+                    ) : (
+                      order.ticket?.title || "N/A"
+                    )}
+                  </td>
                   <td>${order.ticket?.price || "N/A"}</td>
                   <td>
                     <span
@@ -55,16 +66,25 @@ function orders({ user, orders }) {
                       {order.status}
                     </span>
                   </td>
-                  <td>{expiresAt}</td>
                   <td>
-                    {order.status === "active" && (
+                    {order.status === "success" || order.status === "SUCCESS"
+                      ? "N/A"
+                      : expiresAt}
+                  </td>
+                  <td>
+                    {order.status === "success" || order.status === "SUCCESS" ? (
+                      <Link
+                        href="/orders/[orderId]"
+                        as={`/orders/${order.id || order._id}`}
+                      >
+                        <button className="btn btn-sm btn-primary">View</button>
+                      </Link>
+                    ) : (
                       <Link
                         href="/checkout/[orderId]"
                         as={`/checkout/${order.id || order._id}`}
                       >
-                        <button className="btn btn-sm btn-primary">
-                          Pay
-                        </button>
+                        <button className="btn btn-sm btn-primary">Pay</button>
                       </Link>
                     )}
                   </td>
@@ -93,4 +113,3 @@ orders.getInitialProps = async (context) => {
 };
 
 export default orders;
-

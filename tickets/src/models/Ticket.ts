@@ -7,6 +7,7 @@ export interface TicketAttrs {
   price: number;
   userId: string;
   orderId?: string;
+  purchased?: boolean;
 }
 
 // Interface holding the type of the document returned by the Ticket Model
@@ -15,6 +16,7 @@ export interface TicketDocument extends mongoose.Document {
   price: number;
   userId: string;
   orderId?: string;
+  purchased: boolean;
   version: number;
 }
 
@@ -42,6 +44,11 @@ const TicketSchema = new mongoose.Schema(
     orderId: {
       type: String,
       required: false,
+    },
+    purchased: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
   },
   {

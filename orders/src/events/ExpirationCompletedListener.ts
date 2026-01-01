@@ -15,11 +15,15 @@ export class ExpirationCompletedListener extends BaseListener<ExpirationComplete
     if (!order) throw new Error(`Order with id ${data.orderId} does not exist`);
 
     // make status as expired - if order status is not already in SUCCESS or EXPIRED status.
-    if (![OrderStatus.SUCCESS, OrderStatus.EXPIRED].includes(order?.status)) {
-      order.status = OrderStatus.EXPIRED;
-      order = await order.save();
-      await order.populate("ticket");
+
+    if (order?.status === OrderStatus.SUCCESS || order?.status === OrderStatus.EXPIRED) {
+      msg.ack();
+      return;
     }
+
+    order.status = OrderStatus.EXPIRED;
+    order = await order.save();
+    await order.populate("ticket");
 
     // publish order:cancelled event
     new OrderCancelledPublisher(this.client).publish({

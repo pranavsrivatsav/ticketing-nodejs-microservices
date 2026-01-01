@@ -7,3 +7,5 @@ export * from "./TicketUpdatedEvent";
 export * from "./OrderCreatedEvent";
 export * from "./OrderCancelledEvent";
 export * from "./ExpirationCompletedEvent";
+export * from "./PaymentSuccessEvent";
+export * from "./OrderCompletedEvent";

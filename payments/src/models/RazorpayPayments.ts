@@ -7,14 +7,16 @@ interface RzpPaymentAttrs {
   rzpPaymentId: string;
   rzpOrderId: string;
   status: Payments.RazorpayPayment["status"];
+  paymentMadeAt?: Date; // Optional for creation, could be set at creation or later
 }
 
 // interface for document model
 export interface RzpPaymentDocument extends mongoose.Document {
-  orderId: OrderDocument;
+  order: OrderDocument;
   rzpPaymentId: string;
   rzpOrderId: string;
   status: Payments.RazorpayPayment["status"];
+  paymentMadeAt?: Date;
 }
 
 // Define the custom model interface that extends mongoose.Model
@@ -42,6 +44,10 @@ const RzpPaymentSchema = new mongoose.Schema(
     status: {
       type: String,
       required: true,
+    },
+    paymentMadeAt: {
+      type: Date,
+      required: false,
     },
   },
   {
