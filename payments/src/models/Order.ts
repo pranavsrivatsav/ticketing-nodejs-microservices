@@ -71,7 +71,7 @@ function OrderTransform(Doc: OrderDocument, ret: any) {
 // Attach build function to order schema statics
 OrderSchema.statics.buildOrder = function (attrs: OrderAttrs): OrderDocument {
   const retOrder = new Order(attrs);
-  retOrder._id = attrs.id;
+  retOrder._id = new mongoose.Types.ObjectId(attrs.id);
   return retOrder;
 };
 
