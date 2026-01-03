@@ -1,7 +1,6 @@
 import api from "@/services/axiosInterceptors";
 import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useIntervalWithTimeout } from "@/hooks/useIntervalWithTimeout";
 
 function checkout() {
   const router = useRouter();
@@ -79,7 +78,7 @@ function checkout() {
     })();
   }, [orderId]);
 
-  //useIntervalWithTimeout to get and set pg details
+  //useEffect to get and set pg details
   useEffect(() => {
     if (!orderId) return;
     const fetchPgDetails = async () => {
