@@ -25,7 +25,7 @@ export class ExpirationCompletedListener extends BaseListener<ExpirationComplete
     order = await order.save();
     await order.populate("ticket");
 
-    console.log(`Order ${order.id} status changed to EXPIRED after expiration completed`);
+    console.log(`Order ${order.id} status changed to EXPIRED after expiration completed listener`);
     // publish order:cancelled event
     new OrderCancelledPublisher(this.client).publish({
       id: order.id,
