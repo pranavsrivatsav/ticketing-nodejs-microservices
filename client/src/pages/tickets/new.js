@@ -8,11 +8,11 @@ function newTicket(headers) {
 
   const onSubmitHandler = useCallback(async (e) => {
     e.preventDefault();
-    await api.post("/api/tickets", {
+    const response = await api.post("/api/tickets", {
       title,
       price
     })
-    Router.push("/")
+    Router.push(`/tickets/${response.data.id}`)
   }, [title, price])
 
   return (

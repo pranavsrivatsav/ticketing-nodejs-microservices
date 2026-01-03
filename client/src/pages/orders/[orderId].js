@@ -2,6 +2,7 @@ import api from "@/services/axiosInterceptors";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { useIntervalWithTimeout } from "@/hooks/useIntervalWithTimeout";
 
 function OrderDetails() {
   const router = useRouter();
@@ -11,26 +12,39 @@ function OrderDetails() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Reset state when orderId changes
   useEffect(() => {
     if (!orderId) return;
     setLoading(true);
     setError(null);
     setPaymentDetails(null);
+  }, [orderId]);
 
-    // Fetch payment details when component mounts or orderId changes
-    api
-      .get(`/api/payments/razorpay/${orderId}/paymentDetails`)
-      .then((res) => {
+  // Poll for payment details until payment is complete or timeout
+  useEffect(() => {
+    if (!orderId) return;
+    setLoading(true);
+    setError(null);
+
+    const fetchPaymentDetails = async () => {
+      try {
+        const res = await api.get(
+          `/api/payments/razorpay/${orderId}/paymentDetails`
+        );
         setPaymentDetails(res.data);
-      })
-      .catch((err) => {
+        setError(null);
+      } catch (err) {
         setError(
           err.response?.data?.message ||
             err.message ||
             "Failed to fetch payment details"
         );
-      })
-      .finally(() => setLoading(false));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPaymentDetails();
   }, [orderId]);
 
   const formatDate = (dateString) => {

@@ -1,6 +1,7 @@
 import api from "@/services/axiosInterceptors";
 import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useIntervalWithTimeout } from "@/hooks/useIntervalWithTimeout";
 
 function checkout() {
   const router = useRouter();
@@ -9,6 +10,8 @@ function checkout() {
   const [orderDetails, setOrderDetails] = useState();
   const [scriptLoaded, setScriptLoaded] = useState(false);
   const [processing, setProcessing] = useState(false);
+  const [fetchingPgDetails, setFetchingPgDetails] = useState(false);
+  const [error, setError] = useState();
 
   const rzpInstance = useMemo(() => {
     if (!scriptLoaded) return;
@@ -24,13 +27,17 @@ function checkout() {
       handler: async function (rzpResponse) {
         try {
           setProcessing(true);
-          const verifyResponse = await api.post(`/api/payments/razorpay/${orderId}/verify`, {
-            rzpPaymentId: rzpResponse.razorpay_payment_id,
-          });
+          const verifyResponse = await api.post(
+            `/api/payments/razorpay/${orderId}/verify`,
+            {
+              rzpPaymentId: rzpResponse.razorpay_payment_id,
+            }
+          );
           console.log("payment success :" + JSON.stringify(verifyResponse));
           router.push(`/orders/${orderId}`);
         } catch (error) {
-          console.error("Error verifying payment:", error);
+          console.log("Error verifying payment:", JSON.stringify(error));
+          setError('Unable to verify payment. Please check later.');
         } finally {
           setProcessing(false);
         }
@@ -69,15 +76,30 @@ function checkout() {
       }
 
       setOrderDetails(orderDetails);
-
-      //get and set pg details
-      const pgDetails = await api.get(
-        `/api/payments/razorpay/${orderId}/pgDetails`
-      );
-
-      const rzpOrderId = pgDetails.data?.rzpOrderId;
-      setRzpOrderId(rzpOrderId);
     })();
+  }, [orderId]);
+
+  //useIntervalWithTimeout to get and set pg details
+  useEffect(() => {
+    if (!orderId) return;
+    const fetchPgDetails = async () => {
+      setFetchingPgDetails(true);
+      try {
+        const pgDetails = await api.get(`/api/payments/razorpay/${orderId}/pgDetails`);
+        const rzpOrderId = pgDetails.data?.rzpOrderId;
+        if (rzpOrderId) {
+          setRzpOrderId(rzpOrderId);
+        } else {
+          setError("Unable to fetch pg details. Please try again.");
+        }
+      } catch (error) {
+        console.log("Error fetching pg details:", error);
+        setError("Unable to fetch pg details. Please try again.");
+      } finally {
+        setFetchingPgDetails(false);
+      }
+    };
+    fetchPgDetails();
   }, [orderId]);
 
   // use effect to load pg script
@@ -110,14 +132,17 @@ function checkout() {
     };
   }, [scriptLoaded]);
 
-  const onPaymentClickHandler = useCallback((e) => {
-    console.log("payment button clicked");
-    rzpInstance.open();
-    rzpInstance.on("payment.failed", function (response) {
-      console.log("payment failied :" + JSON.stringify(response));
-    });
-    e.preventDefault();
-  }, [rzpInstance]);
+  const onPaymentClickHandler = useCallback(
+    (e) => {
+      console.log("payment button clicked");
+      rzpInstance.open();
+      rzpInstance.on("payment.failed", function (response) {
+        console.log("payment failied :" + JSON.stringify(response));
+      });
+      e.preventDefault();
+    },
+    [rzpInstance]
+  );
 
   // Render functions
   const renderLoadingState = () => (
@@ -131,8 +156,8 @@ function checkout() {
     </div>
   );
 
-  const renderProcessingOverlay = () => {
-    if (!processing) return null;
+  const renderLoadingOverlay = () => {
+    if (!processing || !fetchingPgDetails) return null;
 
     return (
       <div
@@ -154,7 +179,20 @@ function checkout() {
             <span className="visually-hidden">Processing...</span>
           </div>
           <p className="mb-0 fw-bold">Processing payment...</p>
-          <p className="text-muted small mt-2">Please wait while we verify your payment</p>
+          <p className="text-muted small mt-2">
+            Please wait while we verify your payment
+          </p>
+        </div>
+      </div>
+    );
+  };
+
+  const renderErrorOverlay = () => {
+    if (!error || fetchingPgDetails || processing) return null;
+    return (
+      <div className="text-center bg-white p-5 rounded shadow-lg">
+        <div className="spinner-border text-primary mb-3" role="status">
+          <span className="visually-hidden">Error...</span>
         </div>
       </div>
     );
@@ -174,9 +212,7 @@ function checkout() {
   };
 
   const renderStatusBadge = (status) => (
-    <span className={`badge ${getStatusBadgeClass(status)}`}>
-      {status}
-    </span>
+    <span className={`badge ${getStatusBadgeClass(status)}`}>{status}</span>
   );
 
   const renderOrderDetailsTable = () => {
@@ -265,7 +301,7 @@ function checkout() {
   return (
     <>
       {renderCheckoutCard()}
-      {renderProcessingOverlay()}
+      {renderLoadingOverlay()}
     </>
   );
 }

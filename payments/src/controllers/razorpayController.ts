@@ -3,6 +3,7 @@ import { VerifyRazorpayPaymentRequestModel } from "../models/CaptureRazorpayPaym
 import Order from "../models/Order";
 import { BadRequestError, NotFoundError, UnauthorizedRequest } from "@psctickets/common/errors";
 import { verifyPayment, getOrderPaymentDetails } from "../services/razorpayService";
+import { retryWithBackoff } from "../utils/retryWithBackoff";
 
 export async function verifyPaymentHandler(req: Request, res: Response) {
   const payload = req.body as VerifyRazorpayPaymentRequestModel;
@@ -28,7 +29,20 @@ export async function getPgDetailsHandler(req: Request, res: Response) {
 
   if (!orderId) throw new BadRequestError("Order id must be provided as query param");
 
-  const order = await Order.findById(orderId);
+  const retryIntervals = [1000, 2000, 4000];
+  const maxRetries = 5; // Total attempts = 6 (1 initial + 5 retries)
+
+  const { result: order } = await retryWithBackoff(
+    async () => {
+      return await Order.findById(orderId);
+    },
+    retryIntervals,
+    maxRetries,
+    (order) => {
+      // Validator: order exists and has pgDetails
+      return order !== null;
+    }
+  );
 
   if (!order) throw new NotFoundError(`Order with id ${orderId} not found`);
 
@@ -37,7 +51,7 @@ export async function getPgDetailsHandler(req: Request, res: Response) {
 
   res.send({
     orderId: order.id,
-    rzpOrderId: order.pgDetails?.pgOrderId,
+    rzpOrderId: order.pgDetails?.pgOrderId || null,
   });
 }
 
@@ -60,8 +74,6 @@ export async function getOrderPaymentDetailsHandler(req: Request, res: Response)
   }
 
   const payment = await getOrderPaymentDetails(orderId, jwtToken);
-
-  if (!payment) throw new NotFoundError(`Payment details not found for order ${orderId}`);
 
   res.send(payment);
 }

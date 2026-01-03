@@ -8,6 +8,8 @@ import { natsWrapper } from "../events/NatsWrapper";
 import axios from "axios";
 import { NotFoundError } from "@psctickets/common/errors";
 import { OrderResponse } from "../types/OrderResponse";
+import { retryWithBackoff } from "../utils/retryWithBackoff";
+import { OrderStatus } from "@psctickets/common/orders";
 
 export async function createRazorpayOrder(order: OrderDocument): Promise<Orders.RazorpayOrder> {
   try {
@@ -105,8 +107,6 @@ export async function getOrderPaymentDetails(orderId: string, jwtToken: string) 
   // Get payment details from database
   const payment = await RazorpayPayment.findOne({ order: orderId }).populate("order");
 
-  console.log("payment", payment);
-
   if (!payment) {
     throw new NotFoundError(`Payment details not found for order ${orderId}`);
   }
@@ -115,14 +115,27 @@ export async function getOrderPaymentDetails(orderId: string, jwtToken: string) 
   const ordersServiceUrl = process.env.ORDERS_SERVICE_URL || "http://orders-svc:3000";
 
   try {
-    const orderResponse = await axios.get<OrderResponse>(
-      `${ordersServiceUrl}/api/orders/${orderId}`,
-      {
-        headers: {
-          "x-internal-api-key": process.env.INTERNAL_API_KEY || "",
-          "x-jwt-token": jwtToken,
-        },
-      }
+    // we are retrying until order is in SUCCESS status
+    // because order status is updated after payment is successful
+    // via asynchronous event listener in orders service
+    // so we need to wait for the order status to be updated
+
+    // Repeat the request with intervals and retries using retryWithBackoff until the order has status as 'SUCCESS'
+    const retryIntervals = [1000, 2000, 4000]; // ms
+    const maxRetries = 3;
+
+    const { result: orderResponse } = await retryWithBackoff(
+      async () => {
+        return await axios.get<OrderResponse>(`${ordersServiceUrl}/api/orders/${orderId}`, {
+          headers: {
+            "x-internal-api-key": process.env.INTERNAL_API_KEY || "",
+            "x-jwt-token": jwtToken,
+          },
+        });
+      },
+      retryIntervals,
+      maxRetries,
+      (resp) => resp?.data?.status === OrderStatus.SUCCESS
     );
 
     const order = orderResponse.data;
